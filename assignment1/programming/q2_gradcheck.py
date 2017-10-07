@@ -23,14 +23,26 @@ def gradcheck_naive(f, x):
     it = np.nditer(x, flags=['multi_index'], op_flags=['readwrite'])
     while not it.finished:
         ix = it.multi_index
-        print ix
         # Try modifying x[ix] with h defined above to compute
         # numerical gradients. Make sure you call random.setstate(rndstate)
         # before calling f(x) each time. This will make it possible
         # to test cost functions with built in randomness later.
 
         ### YOUR CODE HERE:
+        x[ix] = x[ix] + h # increase with epsilon h
+        # compute cost function with single value in vector x changed
 
+        random.setstate(rndstate)
+        cost_plus = f(x)[0]
+
+        x[ix] = x[ix] - 2*h # decrease original x[ix] with epsilon
+
+        random.setstate(rndstate)
+        cost_minus = f(x)[0]
+
+        x[ix] = x[ix] + h # turn back x[ix] to original form
+
+        numgrad = (cost_plus - cost_minus)/(2*h) # compute apx value of the derivative of cost function J
         ### END YOUR CODE
 
         # Compare gradients
