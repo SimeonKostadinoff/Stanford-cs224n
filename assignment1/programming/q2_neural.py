@@ -34,13 +34,22 @@ def forward_backward_prop(data, labels, params, dimensions):
     W2 = np.reshape(params[ofs:ofs + H * Dy], (H, Dy))
     ofs += H * Dy
     b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))
-
     ### YOUR CODE HERE: forward propagation
-    raise NotImplementedError
+    h = sigmoid(np.dot(data, W1) + b1) # when adding bias +b1 with dimentions(1, H), then we add each element of b1 to its correspond position in dot(data, W1)
+    y_pred = softmax(np.dot(h, W2) + b2)
     ### END YOUR CODE
-
     ### YOUR CODE HERE: backward propagation
-    raise NotImplementedError
+    cost = np.sum(-np.log(y_pred[labels == 1])) / data.shape[0] # cross entropy cost - average sum of all elements in y_pred where the correspondent in labels (y) is 1 but not 0 (label: one-hot vector)
+
+    delta_3 = (y_pred - labels) / data.shape[0] # QUESTION: why dividing by data.shape[0] (number of examples)
+    delta_2 = sigmoid_grad(h) * np.dot(delta_3, W2.T) # compute delta using the dot product between the error (delta_3) and weights of second layer and the Hadamard product with the derivative of the activations
+
+    gradW2 = np.dot(h.T, delta_3)
+    gradb2 = np.sum(delta_3, 0, keepdims = True) # QUESTION: why summing the values of delta_3
+
+    gradW1 = np.dot(data.T, delta_2)
+    gradb1 = np.sum(delta_2, 0, keepdims = True) # QUESTION: why summing the values of delta_2
+
     ### END YOUR CODE
 
     ### Stack gradients (do not modify)
@@ -86,4 +95,4 @@ def your_sanity_checks():
 
 if __name__ == "__main__":
     sanity_check()
-    your_sanity_checks()
+    #your_sanity_checks()
